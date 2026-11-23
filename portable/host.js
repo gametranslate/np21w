@@ -151,5 +151,8 @@ window.NekoPortable = (() => {
     if(op==="surface")return place(params);
     throw new Error("error");
   }};
+  // Each slot belongs to this game's portable core and stores its mounted floppy paths.
+  const stateHints={en:"Save and load use the selected slot for this game. Fast-forward toggles triple speed.",vi:"Lưu và tải dùng ô đã chọn cho game này. Tua nhanh bật hoặc tắt tốc độ gấp ba.","zh-Hans":"使用所选槽位保存或载入当前游戏。快进可切换三倍速。","zh-Hant":"使用所選欄位儲存或載入目前遊戲。快轉可切換三倍速。",de:"Speichern und Laden verwenden den gewählten Platz für dieses Spiel. Der Schnellvorlauf schaltet die dreifache Geschwindigkeit ein oder aus.",fr:"La sauvegarde et le chargement utilisent l’emplacement choisi pour ce jeu. L’avance rapide active ou désactive la vitesse triple.",es:"Guarda y carga en la ranura elegida para este juego. El avance rápido activa o desactiva la velocidad triple.",it:"Salva e carica nello slot selezionato per questo gioco. L’avanzamento rapido attiva o disattiva la velocità tripla.",ko:"이 게임에서 선택한 슬롯에 저장하거나 불러옵니다. 빨리 감기로 3배속을 켜거나 끕니다.",ja:"このゲームで選んだスロットにセーブ・ロードします。早送りで3倍速を切り替えます。"};
+  for(const [language,hint] of Object.entries(stateHints))messages[language].stateHint=hint;
   return port;
 })();

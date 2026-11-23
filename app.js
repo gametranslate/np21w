@@ -192,7 +192,7 @@ function settingsPage(){
   const s=state.settings;
   const tabs=`<div class="settings-tabs">${["basic","advanced"].map(k=>`<button class="btn ${k===tab?"primary":""}" aria-pressed="${k===tab}" data-tab="${k}">${t(k)}</button>`).join("")}</div>`;
   if(tab==="advanced"){
-    const sizes=(portable?[3,7,13]:[3,7,13,31,63]).map(n=>[n,n+" MB"]);
+    const sizes=[3,7,13,31,63].map(n=>[n,n+" MB"]);
     return heading(t("settings"),t("next"))+tabs+panel("hardware","cpu",
       selectRow("cpu","cpu",[4,8,16,20,32,42].map(n=>[n,"2.4576 MHz × "+n]))+selectRow("ram","ram",sizes)+
       selectRow("board","sound",[["2","PC-9801-26K"],["4","PC-9801-86"],["6","PC-9801-86 + 26K"]]));
