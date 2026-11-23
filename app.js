@@ -64,7 +64,9 @@ function diskIllustration(){
   face(48,10,true);face(25,16,false);
   [[13,23],[97,32],[78,3]].forEach(([x,y])=>{ctx.fillStyle="#80ac8a";ctx.fillRect(x-2,y,5,1);ctx.fillRect(x,y-2,1,5);});
 }
-const native = location.hostname === "nekostation.invalid" && Boolean(window.chrome?.webview);
+const portable = window.NekoPortable;
+const windowsHost = location.hostname === "nekostation.invalid" && Boolean(window.chrome?.webview);
+const native = windowsHost || Boolean(portable);
 const languages = {en:"English",vi:"Tiếng Việt","zh-Hans":"简体中文","zh-Hant":"繁體中文",de:"Deutsch",fr:"Français",es:"Español",it:"Italiano",ko:"한국어",ja:"日本語"};
 const defaultKeys = {up:"Up",down:"Down",left:"Left",right:"Right",a:"Z",b:"X",confirm:"Enter",space:"Space",save:"F5",load:"F8",fast:"F9",pause:"F6"};
 const defaults = {language:"en",scale:8,scan:false,volume:65,cpu:20,ram:13,sound:"4",slot:0,keypad:false,layout:"grid",sort:"added"};
@@ -109,6 +111,7 @@ function showError(e){notice(t(e.message)||t("error"));}
 let nextRequest=0;
 const pending=new Map();
 function call(op,params={},files){
+  if(portable)return portable.call(op,params,files);
   if(!native)return Promise.reject(new Error("browser"));
   const id=++nextRequest;
   return new Promise((resolve,reject)=>{
@@ -120,7 +123,7 @@ function call(op,params={},files){
     }catch(e){pending.delete(id);reject(e);}
   });
 }
-if(native)chrome.webview.addEventListener("message",({data})=>{
+function hostMessage({data}){
   if(data.eventName){
     if(data.eventName==="ended"){
       active=null;
@@ -133,7 +136,9 @@ if(native)chrome.webview.addEventListener("message",({data})=>{
   }
   const req=pending.get(data.id);
   if(req){pending.delete(data.id);data.error?req.reject(new Error(data.error)):req.resolve(data.result);}
-});
+}
+if(windowsHost)chrome.webview.addEventListener("message",hostMessage);
+if(portable)portable.notify=data=>hostMessage({data});
 function button(act,label,symbol="",kind=""){
   return `<button class="btn ${kind}" data-act="${act}">${symbol?icon(symbol):""}${esc(label)}</button>`;
 }
@@ -187,7 +192,7 @@ function settingsPage(){
   const s=state.settings;
   const tabs=`<div class="settings-tabs">${["basic","advanced"].map(k=>`<button class="btn ${k===tab?"primary":""}" aria-pressed="${k===tab}" data-tab="${k}">${t(k)}</button>`).join("")}</div>`;
   if(tab==="advanced"){
-    const sizes=[3,7,13,31,63].map(n=>[n,n+" MB"]);
+    const sizes=(portable?[3,7,13]:[3,7,13,31,63]).map(n=>[n,n+" MB"]);
     return heading(t("settings"),t("next"))+tabs+panel("hardware","cpu",
       selectRow("cpu","cpu",[4,8,16,20,32,42].map(n=>[n,"2.4576 MHz × "+n]))+selectRow("ram","ram",sizes)+
       selectRow("board","sound",[["2","PC-9801-26K"],["4","PC-9801-86"],["6","PC-9801-86 + 26K"]]));
@@ -202,7 +207,7 @@ function settingsPage(){
 function helpPage(){
   return heading(t("help"))+panel("play","play",'<p>'+t("homeHint")+'</p><p>'+t("format")+'</p>')+
     panel("multi","disk",'<p>'+t("multiHint")+'</p>')+panel("shortcuts","keyboard",'<p>'+t("stateHint")+'</p>')+
-    panel("core","cpu",'<p><a href="https://github.com/SimK98/np21w" target="_blank" rel="noopener">Neko Project 21/W · 0.86 rev106 ↗</a></p>');
+    panel("core","cpu",portable?'<p><a href="https://github.com/irori/np2-wasm" target="_blank" rel="noopener">Neko Project 21 · np2-wasm ↗</a></p>':'<p><a href="https://github.com/SimK98/np21w" target="_blank" rel="noopener">Neko Project 21/W · 0.86 rev106 ↗</a></p>');
 }
 function render(){
   capture=null;applyChrome();

@@ -1,0 +1,6 @@
+Neko Project 21 portable core, compiled from irori/np2-wasm 563082adc69ef883a04a50f936538745502c6fa7.
+https://github.com/irori/np2-wasm
+Copyright NP2 developer team. See LICENSE.
+NekoStation exports the existing save/load and keyboard functions and adds a three-times frame step. The corresponding changes are in portable/core.patch in the release source.
+SDL 2 is bundled in the WebAssembly module. See SDL-LICENSE.txt.
+font.bmp comes from the np2-wasm 0.3.1 package. Shinonome bitmap fonts by Yasuyuki Furukawa and Efont Open Laboratory.

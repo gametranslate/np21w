@@ -1,0 +1,1 @@
+{"name":"nekostation-packaging","version":"0.2.0","private":true,"devDependencies":{"@electron/packager":"20.3.0"}}

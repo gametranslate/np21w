@@ -1,0 +1,41 @@
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index d7772ce..b93ca4c 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -52,6 +52,8 @@ target_link_options(np2_dependencies INTERFACE
+   -sMODULARIZE=1
+   -sEXPORT_ES6=1
+   -sEXPORTED_RUNTIME_METHODS=FS,ccall,UTF8ToString,stringToUTF8
++  -sEXPORTED_FUNCTIONS=_main,_sdlkbd_keydown,_sdlkbd_keyup,_statsave_save,_statsave_load
++  -sALLOW_MEMORY_GROWTH=1
+ )
+ 
+ add_executable(np2)
+@@ -367,7 +369,7 @@ set(IA32_SOURCES
+ 
+ add_executable(np21)
+ target_link_libraries(np21 PRIVATE np2_dependencies)
+-target_link_options(np21 PRIVATE --emit-tsd=np21.d.ts)
++
+ 
+ install(TARGETS np21 RUNTIME DESTINATION bin)
+ target_sources(np21 PRIVATE ${COMMON_SOURCES} ${IA32_SOURCES})
+diff --git a/src/sdl2/np2.c b/src/sdl2/np2.c
+index faa92f5..2db0ffc 100644
+--- a/src/sdl2/np2.c
++++ b/src/sdl2/np2.c
+@@ -95,10 +95,14 @@ static int flagload(const char *ext, const char *title, BOOL force) {
+ 
+ #ifdef __EMSCRIPTEN__
+ 
++static unsigned fast_factor = 1;
++EMSCRIPTEN_KEEPALIVE void np2_fast(int enabled) { fast_factor = enabled ? 3 : 1; }
++
+ void main_loop() {
+ 	UINT cnt = timing_getcount();
+ 	if (cnt > 12)
+ 		cnt = 12;
++	cnt *= fast_factor;
+ 	timing_setcount(0);
+ 	taskmng_rol();
+ 	while (cnt-- > 0)
