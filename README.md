@@ -16,11 +16,11 @@ NekoStation stores Windows library data and per-game profiles under `%LOCALAPPDA
 
 Download your platform's package from [Releases](https://github.com/gametranslate/np21w/releases). On Debian or Ubuntu x64, install the `.deb` and open NekoStation from the applications menu. On macOS, select the ZIP for Apple silicon (arm64) or Intel (x64), extract it and open NekoStation.app. The Mac builds are ad hoc signed and have not been notarized by Apple. On Android 9 or newer, install the APK and select a disk with **Browse files**. Use an up-to-date Android System WebView.
 
-These editions run the np2-wasm Neko Project 21 core inside the app, copy imported disk images into local app storage and offer touch controls on Android. Save slots are specific to each core and device. [Portable build instructions](portable/BUILD.md)
+These editions run the np2-wasm Neko Project 21 core inside the app, copy imported disk images into local app storage and offer touch controls on Android. Save slots are specific to each core and device. [Portable build instructions](https://github.com/gametranslate/np21w/blob/nekostation/portable/BUILD.md)
 
 ## Build the Windows edition
 
-On 64-bit Windows with the .NET Framework 4.x compiler, run `native\Build.ps1` from PowerShell. To package the rebuilt launcher with its runtime dependencies and notices, run `python tools/package_windows.py 0.1.0`.
+On 64-bit Windows with the .NET Framework 4.x compiler, run `native\Build.ps1` from PowerShell. To package the rebuilt launcher with its runtime dependencies and notices, run `python tools/package_windows.py 0.2.0`.
 
 ## Credits
 
