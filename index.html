@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#121518">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'none'; frame-src 'none'">
+  <title>NekoStation · PC-98</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="locales.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <aside class="sidebar" aria-label="Thanh bên">
+    <div class="brand"><canvas width="22" height="21" id="cat" aria-hidden="true"></canvas><div><strong>NekoStation</strong><span>PC-98 LAUNCHER</span></div></div>
+    <nav aria-label="Điều hướng">
+      <div class="nav-caption">BỘ SƯU TẬP</div>
+      <button data-view="library"><i data-icon="library"></i><span>Thư viện</span></button>
+      <button data-view="favorite"><i data-icon="heart"></i><span>Yêu thích</span><small id="fav-count"></small></button>
+      <button data-view="recent"><i data-icon="history"></i><span>Gần đây</span></button>
+      <div class="nav-caption second">HỆ THỐNG</div>
+      <button data-view="settings"><i data-icon="sliders"></i><span>Cài đặt</span></button>
+      <button data-view="help"><i data-icon="book"></i><span>Hướng dẫn</span></button>
+    </nav>
+    <div class="core"><span class="core-icon"><i data-icon="cpu"></i></span><div><small>LÕI GIẢ LẬP</small><strong>Neko Project 21/W</strong></div></div>
+    <a class="publisher" href="https://gametranslate.us/" target="_blank" rel="noopener" aria-label="GameTranslate — gametranslate.us" title="GameTranslate · gametranslate.us">
+      <img src="assets/GameTranslate-Favicon.png" width="34" height="34" alt="">
+      <span class="publisher-text"><strong>GameTranslate</strong><span class="publisher-url">gametranslate.us</span></span>
+    </a>
+  </aside>
+  <div class="workspace">
+    <header class="topbar">
+      <div class="crumb"><i data-icon="controller"></i><span>Không gian chơi</span><span class="slash">/</span><b id="crumb-name">Thư viện</b></div>
+      <label class="search"><i data-icon="search"></i><input type="search" id="search" placeholder="Tìm game..." aria-label="Tìm game trong thư viện"><kbd>Ctrl K</kbd></label>
+    </header>
+    <main id="main"></main>
+  </div>
+  <input id="files" type="file" accept=".hdi,.nhd,.d88,.fdi" multiple hidden>
+  <dialog id="modal" aria-labelledby="dialog-title"></dialog>
+  <div id="notice" role="status" aria-live="polite"></div>
+  <div id="drop-overlay" hidden><div><i data-icon="import"></i><strong>Thả tệp để mở game</strong></div></div>
+</body>
+</html>

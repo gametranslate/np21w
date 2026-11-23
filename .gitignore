@@ -1,0 +1,13 @@
+/NekoStation.exe
+/build/
+/dist/
+/core/font.tmp
+/core/*.ini
+/Thu-vien.png
+/Cai-dat.png
+/assets/Minh-hoa.txt
+node_modules/
+__pycache__/
+*.keystore
+*.jks
+*.p12
