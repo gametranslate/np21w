@@ -2,12 +2,14 @@
 import argparse
 import base64
 import os
+import re
 from pathlib import Path
 import socket
 import struct
 import subprocess
 import tempfile
 import time
+import xml.etree.ElementTree as ET
 from playwright.sync_api import sync_playwright
 
 MARK=b"NEKOSTATION_PORT_TEST:"
@@ -21,7 +23,28 @@ def test_disk():
     data[510:512]=b"\x55\xaa"
     return struct.pack("<8I",0,0x90,4096,size,1024,8,2,77).ljust(4096,b"\x00")+data
 
-def check(page):
+def pick_android_disk(page):
+    with tempfile.TemporaryDirectory() as directory:
+        image=Path(directory)/"Runtime Check.fdi"
+        image.write_bytes(test_disk())
+        subprocess.run(["adb","push",str(image),"/sdcard/Download/"],check=True)
+    page.locator(".feature [data-act=pick]").click()
+    for _ in range(18):
+        time.sleep(.5)
+        subprocess.run(["adb","shell","uiautomator","dump","/sdcard/neko-qa-window.xml"],stdout=subprocess.DEVNULL)
+        dump=subprocess.run(["adb","exec-out","cat","/sdcard/neko-qa-window.xml"],capture_output=True).stdout
+        try:nodes=list(ET.fromstring(dump).iter("node"))
+        except ET.ParseError:continue
+        for label in ("Runtime Check.fdi","Downloads","Show roots","Open from"):
+            node=next((n for n in nodes if label in (n.get("text"),n.get("content-desc"))),None)
+            if node is None:continue
+            x1,y1,x2,y2=map(int,re.findall(r"\d+",node.get("bounds")))
+            subprocess.run(["adb","shell","input","tap",str((x1+x2)//2),str((y1+y2)//2)],check=True)
+            if label=="Runtime Check.fdi":return
+            break
+    raise AssertionError("Android document picker did not yield the test disk")
+
+def check(page,android=False):
     page.set_default_timeout(20000)
     page.on("pageerror",lambda err:print("Renderer error:",err,flush=True))
     page.on("console",lambda msg:print("Console:",msg.text[:350],flush=True) if msg.type=="error" else None)
@@ -31,10 +54,12 @@ def check(page):
     page.locator("[data-bind=a]").click()
     page.keyboard.press("q")
     page.locator("[data-view=library]").click()
-    encoded=base64.b64encode(test_disk()).decode()
-    page.evaluate("""s=>{const bytes=Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-      const dt=new DataTransfer();dt.items.add(new File([bytes],'Runtime Check.fdi'));
-      document.querySelector('main').dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:dt}));}""",encoded)
+    if android:pick_android_disk(page)
+    else:
+        encoded=base64.b64encode(test_disk()).decode()
+        page.evaluate("""s=>{const bytes=Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+          const dt=new DataTransfer();dt.items.add(new File([bytes],'Runtime Check.fdi'));
+          document.querySelector('main').dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:dt}));}""",encoded)
     try:page.wait_for_selector("#play-surface")
     except Exception:
         print("Launcher status:",page.locator("#notice").text_content());raise
@@ -93,7 +118,7 @@ def main():
             if args.url:
                 b=p.chromium.launch();page=b.new_page();page.goto(args.url);check(page);b.close();return
             for i in range(50):
-                try:b=p.chromium.connect_over_cdp(url,timeout=1500);break
+                try:b=p.chromium.connect_over_cdp(url,timeout=1500,no_defaults=bool(args.cdp));break
                 except Exception:
                     if proc and proc.poll() is not None:raise RuntimeError("Packaged application exited")
                     if i==49:raise
@@ -104,7 +129,7 @@ def main():
                 if page:break
                 time.sleep(.2)
             assert page,"No NekoStation renderer"
-            check(page)
+            check(page,android=bool(args.cdp))
         finally:
             if proc:
                 proc.terminate();proc.wait(timeout=10)

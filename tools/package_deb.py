@@ -9,8 +9,10 @@ bundle=Path(sys.argv[1]).resolve()
 out=Path(__file__).resolve().parents[1]/"dist"/"NekoStation-0.2.0-linux-amd64.deb"
 with tempfile.TemporaryDirectory() as work:
     stage=Path(work)
+    stage.chmod(0o755)
     app=stage/"opt"/"NekoStation"
     shutil.copytree(bundle,app,symlinks=True)
+    app.chmod(0o755)
     for f in app.rglob("*"):
         if f.is_symlink():continue
         is_binary=f.name in {"NekoStation","chrome_crashpad_handler","chrome-sandbox"}
