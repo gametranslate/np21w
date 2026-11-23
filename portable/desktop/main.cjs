@@ -18,7 +18,11 @@ app.whenReady().then(()=>{
   function open(){
     window=new BrowserWindow({title:"NekoStation",width:1240,height:800,minWidth:650,minHeight:480,
       backgroundColor:"#111417",icon:path.join(root,"assets","GameTranslate-Favicon.png"),
-      webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false,autoplayPolicy:"no-user-gesture-required"}});
+      webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false,autoplayPolicy:"no-user-gesture-required",disableHtmlFullscreenWindowResize:process.platform==="darwin"}});
+    if(process.platform==="darwin"){
+      window.webContents.on("enter-html-full-screen",()=>window.setSimpleFullScreen(true));
+      window.webContents.on("leave-html-full-screen",()=>window.setSimpleFullScreen(false));
+    }
     window.webContents.setWindowOpenHandler(({url})=>{
       if(links.has(url))shell.openExternal(url);
       return {action:"deny"};
